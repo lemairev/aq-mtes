@@ -87,9 +87,8 @@ episode <- read_rds("data/processed/episode_list.Rds") %>%
 
 # french maps --------------------------------------------------------------
 # simplified geometry, no domtom (better speed)
-indir   <- "/home/developer/data/map/france/"
-shp_frm <- rgdal::readOGR(paste0(indir, "fr_simplified/"), "fr_contour_lonlat_simplified") 
-shp_dep <- st_read(paste0(indir, "dep_simple/"), "departements-20180101_simplified") %>% 
+shp_frm <- rgdal::readOGR("data/fr_simple/", "fr_contour_lonlat_simplified") 
+shp_dep <- st_read("data/dep_simple/", "departements-20180101_simplified") %>% 
   mutate_if(.predicate = base::is.factor, .funs = as.character) # factor to char
 
 # utilities ---------------------------------------------------------------

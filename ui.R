@@ -203,7 +203,7 @@ ui <- dashboardPage(
       
       # social -------------------------------------------------------------
       tabItem(tabName = "m_social",
-        includeHTML("social.html")
+        includeHTML("reporting/social.html")
       ),
       
       # about --------------------------------------------------------------

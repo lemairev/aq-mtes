@@ -2,8 +2,26 @@
 title: "Préoccupation des français à travers Twitter et Google Trends"
 author: "Vincent Lemaire"
 date: "31 décembre 2018"
-output: html_fragment
+output: 
+  html_fragment:
+    fig_width: 8
+    fig_height: 5
 ---
+
+<!-- init env... html_fragment-->
+```{r setup, include=FALSE, echo=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning=FALSE)
+options(digits = 3)
+
+library(tidyverse)
+library(gtrendsR)
+library(tidytext)
+library(rtweet)
+library(ggwordcloud)
+
+# for ts theme classic
+theme_set(theme_classic())
+```
 
 ## Introduction
 
@@ -17,7 +35,43 @@ Tout d'abord, les tendances de recherche de la qualité de l'air sont présenté
 
 La figure suivante présente les tendances de recherche depuis 2004 à nos jours sur Google Trends. Plusieurs mots-clefs en rapport avec la qualité de l'air ont été évalués afin d'identifier les mots les plus utilisés. La figure montre que le terme pollution atmosphérique est relativement plus cherché que le terme qualité de l'air. Les autres sont en comparaison très peu recherchés. 
 
-![](../figs/keywords.png){ width=40% }
+<!-- keywords -->
+```{r}
+# make a request ----------------------------------------------------------
+opt <- list(
+  keyw = c("pollution atmosphérique", "pollution de l air", 
+           "qualité de l air", "épisode de pollution"),
+  geo  = "FR",  # focus on france
+  time = "all", # from 2004 (following period ==> tstep of the answer change)
+  chan = "web"  # could be youtube...
+)
+
+ifile <- "../data/gtrends/trends-2004-aq_term-influence.csv"
+if (!file.exists(ifile)) {
+  trends <- gtrends(opt$keyw, gprop = opt$chan, geo = opt$geo, time = opt$time)
+  trends_time <- trends$interest_over_time
+  write_csv(trends_time, path = ifile)
+} else {
+  trends_time <- read_csv(ifile)
+}
+
+# figures -----------------------------------------------------------------
+ggplot(data = trends_time, aes(x = date, y = as.numeric(hits), group = keyword, col = keyword)) +
+  geom_line() + 
+  scale_x_date(date_labels = "%Y-%m") +
+  theme(
+   legend.title = element_blank(),
+   legend.direction = "vertical",
+   legend.position = c(.8,.7),
+   legend.text = element_text(size = 12)
+  ) + 
+  labs(
+   title = 'Quels mots pour rechercher la qualité de l\'air?',
+   x  = NULL,
+   y  = "Intérêt relatif",
+   color = NULL
+  )
+```
 
 Fort de cette information, pour la suite de l'étude, on utilise donc les mots clefs : pollution atmosphérique, qualité de l'air et pollution de l'air afin d'évaluer les tendances de recherche. De plus lors de la collecte de données sur Twitter, on s'est focalisé sur des hashtags en rapport avec ces termes. 
 
@@ -25,7 +79,31 @@ Fort de cette information, pour la suite de l'étude, on utilise donc les mots c
 
 La figure ci-après présente les tendances de recherche depuis 2004 (lancement de Google Trends) à nos jours. Les données représentent un pourcentage de recherche par rapport au maximum sur la période (ici en 2004). La recherche porte sur la combinaison de mots: "pollution atmosphérique ou pollution de l'air ou qualité de l'air", afin de bien couvrir le spectre des recherches. 
 
-![](../figs/trends.png){ width=40% }
+<!-- trends -->
+```{r}
+# read data ---------------------------------------------------------------
+time_trends  <- read_csv("../data/gtrends/trends-2004-aq.csv", 
+                        skip = 2, col_names = T) 
+info_request <- names(time_trends)[2] # extract request
+time_trends  <- set_names(time_trends, c("month", "hits")) %>% 
+  mutate(month_new = lubridate::ymd(month, truncated = 1))
+
+# figures -----------------------------------------------------------------
+ggplot(data = time_trends, aes(x = month_new, y = as.numeric(hits), group = 1)) +
+  geom_line() + 
+  scale_x_date(date_labels = "%Y-%m") +
+  theme(
+    legend.title = element_blank(),
+    legend.position = "bottom",
+    legend.text = element_text(size = 12)
+  ) + 
+  labs(
+    title = "Tendance de recherche Google sur la qualité de l'air",
+    x  = NULL,
+    y  = "Intérêt relatif"
+  ) + 
+  geom_smooth()
+```
 
 On observe une tendance relative à la baisse par rapport à 2004 et un cycle saisonnier dans les recherches avec des pics en hiver notamment. Est-ce que ces pics de recherche sont liés à des pics de pollution? 
 
@@ -38,8 +116,42 @@ Dans cette section, on met en relation la base de données des épisodes de poll
 
 On remarque globalement des hausses de recherche lors des pics de pollution, notamment en fin d'année 2016 et début 2017, lors d'épisodes de pollution aux particules. Faire une analyse de la série temporelle en la décomposant pour extraire le signal saisonnier et la tendance pourrait apporter des informations supplémentaires. Enfin, étudier la corrélation entre fréquence de recherche et occurrence d'épisodes de pollution mathématiquement et non plus visuellement permettrait une meilleure évaluation. 
 
-![](../figs/episodes.png){ width=40% }
 
+<!-- episodes -->
+```{r}
+# read data ---------------------------------------------------------------
+# episodes
+episode <- read_rds("../data/processed/episode_list.Rds") %>% 
+  dplyr::filter(!reg_code %in% c(paste0("0", 1:4), "06"))
+
+period  <- range(episode$date)
+
+# request of google trends
+time_trends  <- read_csv("../data/gtrends/trends-2015-2018-aq.csv", 
+                        skip = 2, col_names = T) 
+
+info_request <- names(time_trends)[2] # extract request
+time_trends  <- set_names(time_trends, c("weeks", "hits")) # rename
+
+# figures -----------------------------------------------------------------
+ggplot(data = time_trends, aes(x = weeks, y = as.numeric(hits))) +
+  geom_vline(data = episode, aes(xintercept = date, color = pol), 
+            alpha = .3, lwd = 1) +
+  # scale_colour_manual(values = c("#AD7575", "#B875BA", "#7788A8", "#659993")) +
+   geom_line() + 
+   theme(
+     legend.title = element_blank(),
+     legend.position = "bottom",
+     legend.text = element_text(size = 12)
+   ) + 
+   labs(
+     title = "Recherche Google sur la pollution atmosphérique & pics de pollution",
+     x  = NULL,
+     y  = "Intérêt relatif"
+   ) +
+  guides(colour = guide_legend(override.aes = list(alpha = 1)))
+
+```
 
 ## Twitter : un mois de collecte
 
@@ -49,29 +161,231 @@ Dans cette étude, on s'appuie sur les tendances de recherche Google afin de col
 
 La figure suivante présente les tendances de recherche relative entre qualité de l'air et changement climatique. 
 
-![](../figs/trends_aqcc.png){ width=40% }
+<!-- trends aqcc -->
+```{r}
+# read data ---------------------------------------------------------------
+time_trends_aqcc  <- read_csv("../data/gtrends/trends-2004-ccaq.csv", 
+                        skip = 2, col_names = T) 
+info_request_aqcc <- names(time_trends_aqcc)[2:3] # extract request
+time_trends_aqcc  <- set_names(time_trends_aqcc, c("month", "aq", "cc")) %>% 
+  mutate(month = lubridate::ymd(month, truncated = 1)) %>% 
+  gather(key = type, value = hits, aq:cc) # == gather(type, hits, -month)
+
+# figures -----------------------------------------------------------------
+time_trends_aqcc %>% 
+  mutate(type = ifelse(type == "aq", "Qualité de l'air", "Changement climatique")) %>%     
+  ggplot(aes(x = month, y = as.numeric(hits), color = type, group = type)) +
+    geom_line() + 
+    scale_x_date(date_labels = "%Y-%m") +
+    theme(
+      legend.title = element_blank(),
+      legend.position = "bottom",
+      legend.direction = "vertical",
+      legend.text = element_text(size = 12)
+    ) + 
+    labs(
+      title = "Comparaison des fréquences de recherche Google",
+      subtitle = "Portant sur la qualité de l'air & le changement climatique",
+      x  = NULL,
+      y  = "Intérêt relatif"
+    ) 
+```
 
 Globalement on s'aperçoit que le changement climatique est plus recherché sur Google que la qualité de l'air. Observe-t-on les mêmes tendances dans les tweets collectés? La réponse est oui, pour un mois de collecte de tweets en français, 6068 tweets relatifs au changement climatique ont été collectés contre seulement 572 pour la qualité de l'air. Afin de connaître la position exacte des utilisateurs (coordonnées GPS) et d'identifier s'ils résident en France, il faut une API Google Maps. Ne disposant pas de cet accès, on a retravaillé les informations relatives aux différents tweets (description des utilisateurs, location...) et identifiés 3777 utilisateurs qui résident en France, 1471 dans d'autres endroits (Belgique, Sénégal...) et 1392 sont non identifiés. Pour le reste de l'analyse, l'ensemble du corpus de tweets est considéré mais la même analyse pourrait être réalisée en ne gardant uniquement les "tweets français".
+
+<!-- tweet init -->
+```{r}
+theme_set(theme_light())
+
+# custom functions (tweetair)
+clean_tweet <- function(text) {
+  if (is.null(text)) stop("need text arg")
+  if (!is.character(text)) stop("need chr")
+  text <- gsub("\\n", " ", text)  # rm newline
+  text <- gsub("(http?s[^ ]*)|(www\\.[^ ]*)", " ", text)  # rm http
+  text <- str_to_lower(text, locale = "fr") # to min
+  text <- str_squish(text) # rm space
+  return(text)
+}
+
+rm_accent <- function(text) {
+  # need to keep the accent for the sentiment analysis 
+  text <- iconv(text, to = "ASCII//TRANSLIT//IGNORE")   # rm accent
+  text <- gsub("['`^~\"]", " ", text)  # rm accent
+}
+
+extr_hashtags_mentions <- function(text, type = c("hashtags", "mentions")) {
+  if (is.null(type)) stop("type needed")
+  patrn <- switch(type, hashtags = "#[[:alnum:]_]*", mentions = "@[[:alnum:]_]*")
+  str_extract_all(text, pattern = patrn, simplify = TRUE)
+}
+
+# read data ---------------------------------------------------------------
+# stop words & commune information
+stopwordfr <- stopwords::stopwords('fr')
+
+# reformat to have a list of all names (dept region..)
+communesfr <- read_rds("../data/processed/commune.Rds") %>% 
+  dplyr::select(reg_name, dep_name, com_name) %>% # extract name
+  unlist %>% # together in one vector
+  str_to_lower %>% # reformat
+  str_replace_all("-", " ") %>% # reformat
+  unique # unique ==> ready to compare with twitter
+
+# all the tweets (aq & cc)
+all_tweets <- map_df(dir("../data/tweet/", full.names = T), read_twitter_csv)
+aq <- map_df(dir("../data/tweet/", pattern = "aq", full.names = T), read_twitter_csv)
+# process data -------------------------------------------------------------
+# clean tweets
+all_tweets_text <- all_tweets %>% 
+  mutate(
+    text_clean = clean_tweet(text),
+    description_clean  = clean_tweet(description),
+    location_clean = clean_tweet(rm_accent(location))
+  ) 
+
+# extract localisation information: see geo_coords, coords_coords (need api google maps) 
+# country, bbox_coords, place_full_name, **location**
+# here may have fr or something: quoted_description, quoted_name
+# first find localisation word to create the matching list 
+# use distinct to avoid double counting of the same author
+location <- all_tweets_text %>% 
+  mutate(location = rm_accent(location_clean)) %>% 
+  distinct(user_id, location_clean) %>% 
+  unnest_tokens(word, location_clean) %>% 
+  count(word, sort = T) %>% 
+  filter(!word %in% stopwordfr) %>%
+  distinct() 
+
+# match with my db of fr names (not exhaustif but ok)
+location_fr <- left_join(tibble(word = c(communesfr, 'france')), 
+                         y = location, by = "word") %>% drop_na 
+
+# now i can recode my var geo
+pattrn <- str_c(location_fr$word, collapse = "|")
+all_tweets_text <- all_tweets_text %>% 
+  mutate(
+    geo = ifelse(str_detect(location_clean, pattern = pattrn), 
+                 yes = "fr", no = "other") 
+  ) 
+
+#count(all_tweets_text, geo) #%>% 
+  # ggplot(aes(x = fct_reorder(geo, n), y = n )) +
+  # geom_col() + 
+  # coord_flip()
+```
+
 
 ### Analyse des tweets
 
 La première analyse s'est portée sur les hashtags (#mots-clefs). Les hashtags permettent dans twitter de se référer à une thématique et sont donc très importants. Le graphique (a) présente les hashtags les plus populaires lors de la collecte. On s'aperçoit que la majorité des tweets concernent le changement climatique et que les termes qui reviennent le plus sont #changementclimatique pour le changement climatique et #qualitedelair pour la pollution atmosphérique avec respectivement environ 2500 et 400 occurrences. 
 
-![](../figs/hashtags.png){ width=40% }
+<!-- hashtags -->
+```{r}
+# compare that & query
+count(all_tweets, query, sort = T)  %>% 
+  ggplot(aes(x = fct_reorder(query, n),  y = n)) +
+  geom_col() +
+  labs(
+    y = "occurence",
+    x = "hashtags",
+    title = "Classement des hashtags les plus populaires"
+  ) + coord_flip() -> p1
+
+# extract all hastags (see example after to map)
+extr_hashtags_mentions(rm_accent(all_tweets_text$text_clean), type = "hashtags") %>% 
+  as.tibble() %>%  
+  gather() %>% 
+  filter(value != "") %>%  
+  count(value, sort = TRUE) %>%
+  filter(n >= 150) %>% 
+  ggplot(aes(x = fct_reorder(value, n),  y = n)) +
+  geom_col() +
+  coord_flip() +
+  labs(
+    y = "occurence",
+    x = "hashtags",
+    title = "Classement des hashtags les plus populaires dans les tweets collectés"
+  ) -> p2
+
+cowplot::plot_grid(p1, p2, ncol = 1, labels = "auto")
+```
 
 Le graphique (b) quant à lui propose d'étudier les hashtags présents dans le corps du texte des tweets collectés. On retrouve les mêmes hashtags importants cependant on note l'apparition d'autres hashtags qui sont le reflet de l'actualité comme: #giletjaunes ou encore #cop24. Une fois encore, on remarque la prépondérance des hashtags concernant le changement climatique.
 
 Dans un second temps, on s'est intéressé aux utilisateurs les plus actifs sur twitter pendant ce mois. La figure ci-après présente les noms des utilisateurs les plus actifs par sujet: rouge pour le changement climatique et bleu pour la qualité de l'air. On retrouve par exemple CCNUCC qui est le compte officiel de l'ONU Changements climatiques ou encore Sentinellesdsc qui est un programme scientifique et éducatif sur les effets du changement climatique et sur la biodiversité. Concernant la qualité de l'air, monair_info est un compte visant à informer les gens sur la qualité de l'air ambiante. 
 
-![](../figs/top_user.png){ width=60% }
+<!-- top users -->
+```{r}
+top_user <- all_tweets_text %>% 
+  count(screen_name, query, sort = TRUE) %>% 
+  filter(n >= 10) 
+
+query_uniq <- unique(top_user$query)
+
+top_user %>%
+  mutate(query_simple = case_when(
+    query == "#changementclimatique" ~ "changement climatique",
+    query == "#rechauffementclimatique" ~ "changement climatique",
+    query == "#climatechange" ~ "changement climatique",
+    query == "#airquality" ~ "qualité de l'air",
+    query == "#qualitedelair" ~ "qualité de l'air",
+    query == "#airpollution" ~ "qualité de l'air"
+  )) %>% 
+  ggplot(aes(label = screen_name,  size = n, color = query_simple)) +
+  geom_text_wordcloud() +
+  scale_size_area(max_size = 10) +
+  theme_minimal() 
+
+# top_user_info <- left_join(top_user, y = select(all_tweets_text, c("screen_name","text", "source")))
+# top_user_info %>% 
+#   count(query, screen_name)
+```
 
 Ensuite on s'est intéressé aux mentions les plus fréquentes parmi les tweets. Autre arme redoutable de Twitter, les mentions permettent d'interpeler, citer quelqu'un sur Twitter. La figure ci-après classe les comptes en fonction du nombre de mentions. On retrouve des noms bien connus comme Le Monde, le président français (et américain), la COP24 et bien d'autres organismes de presse, d'ONG ou de recherches (France Info, WWF, le CNRS...). Il serait intéressant d'étudier les liens entre ces mentions et les utilisateurs par exemple. 
 
-![](../figs/mentions.png){ width=40% }
+
+<!-- mentions -->
+```{r}
+# extract all mention and find the occurence
+mention <-  str_extract_all(all_tweets_text$text_clean, "@[[:alnum:]_]*", simplify = T) %>% 
+  as.tibble() %>%  
+  gather() %>% 
+  filter(value != "") %>%  
+  count(value, sort = TRUE) 
+
+filter(mention, n >= 23) %>% 
+  ggplot(aes(x = fct_reorder(value, n),  y = n)) +
+  geom_col() +
+  coord_flip() +
+  labs(
+    y = "occurence",
+    x = "mentions",
+    title = "Classement des comptes les plus mentionnés parmi les tweets collectés"
+  )
+```
 
 Enfin, une petite analyse des mots les plus fréquents est réalisée. Cette analyse simple regarde juste l'occurrence des mots parmi les tweets. Inévitablement, on retrouve les hashtags et les mentions parmi les mots les plus fréquents. On pourrait donc les retirer pour se concentrer uniquement sur les autres mots présents. 
 
-![](../figs/words.png){ width=40% }
+
+<!-- words -->
+```{r}
+# need to clean the text more
+tibble(text = rm_accent(all_tweets_text$text_clean), line = 1:length(all_tweets_text$text_clean)) %>% 
+  unnest_tokens(word, text) %>% 
+  count(word, sort = TRUE) %>% 
+  filter(!word  %in% c(stopwordfr, "a", "via", "c'est", "plus", 
+                       "contre", "si", "amp", "ca", "faire")) %>%
+  filter(n >= 250) %>% 
+  ggplot(aes(x = fct_reorder(word, n), y = n)) + 
+  geom_col() +
+  coord_flip() +
+  labs(
+    y = "occurence",
+    x = "mots phares",
+    title = "Classement des mots les plus fréquents parmi les tweets collectés"
+  )
+```
 
 Afin de compléter cette analyse, on pourrait regarder les mots composés, réaliser une analyse de sentiments pour connaître la préoccupation (colère, action...) des gens à travers le tweet... 
 
@@ -83,12 +397,72 @@ Cette étude ne fait qu'effleurer la surface des possibilités notamment avec le
 
 Concernant Google Trends, la façon dont on écrit les mots-clefs influence fortement les recherches. Cela est bien documenté [ici](https://support.google.com/trends/answer/4359582?hl=fr). Prenons l'exemple de la pollution atmosphérique, c'est un bigramme (mot composé). Il convient donc si on veut chercher exactement ce terme d'ajouter des guillemets. Autrement, Google Trends peut dissocier les termes de recherche tel que : "pollution et/ou atmosphérique". La figure suivante évalue justement l'utilisation des guillemets sur la recherche de tendance. On s'aperçoit alors que les requêtes sont sensiblement pareilles que l'on considère ou non, les guillemets ce qui laisse à penser que leur utilisation ici n'est pas indispensable. 
 
-![](../figs/quote.png){ width=40% }
+<!-- quotes -->
+```{r}
+theme_set(theme_classic())
 
+# read data ---------------------------------------------------------------
+# request gtrends aq cc
+trend_quote <- read_csv("../data/gtrends/trends-2004-aq_quote-influence.csv", 
+                        skip = 2, col_names = T) %>%  
+  rename_at(vars(contains("France")), 
+            funs(str_remove(., pattern = ":.*$"))) %>% #rm all after ":"
+  rename(month = Mois) %>% 
+  mutate(month = lubridate::ymd(month, truncated = 1)) %>% 
+  gather(type, hits, -month)
+
+
+ggplot(data = trend_quote, aes(x = month, y = as.numeric(hits), 
+                               color = type, group = type)) +
+  geom_line() + 
+  scale_x_date(date_labels = "%Y-%m") +
+  theme(
+    legend.position = "bottom",
+    legend.direction = "vertical",
+    legend.text = element_text(size = 12)
+  ) + 
+  labs(
+  title = 'Comparaison de l\'influence des " " sur la recherche',
+    x  = NULL,
+    y  = "Intérêt relatif",
+    color = NULL
+  ) 
+```
 
 Un autre élément important auquel il faut prêter attention est le *misspelling* autrement dit lorque l'on orthographie mal un mot lors d'une recherche Google. Afin de chercher l'ensemble des recherches qualité de l'air par exemple, il faudrait donc considérer l'ensemble des mots-clefs (pollution atmosphérique...) et écrire l'ensemble de ces mots de différentes façons. Des générateurs de *misspelling* existent afin de réaliser automatiquement ce travail. En guise d'exemple, la figure présente le mot pollution atmosphérique orthographié de 4 façons avec des oublis de lettre et d'accent. Globalement on s'aperçoit que le terme bien orthographié est celui qui est le plus recherché. Le deuxième et seul autre terme avec une fréquence importante est "pollution atmospherique" (sans accent). Pour améliorer les tendances de recherche précédentes, nous aurions dû dupliquer l'écriture des mots avec et sans accents. L'influence semble cependant assez faible.
 
-![](../figs/misspelling.png){ width=40% }
+
+<!-- misspellings -->
+```{r}
+# read data ---------------------------------------------------------------
+# request gtrends misspellings
+trend_missp  <- read_csv("../data/gtrends/trends-2004-aq_misspelling-influence_atm.csv", 
+                  skip = 2, col_names = T)  %>% 
+  rename_at(vars(contains("France")), 
+            funs(str_remove(., pattern = ":.*$"))) %>% #rm all after ":"
+  rename(month = Mois) %>% 
+  mutate(month = lubridate::ymd(month, truncated = 1)) %>% 
+  gather(type, hits, -month)
+          
+# figures -----------------------------------------------------------------
+# misspelling influence
+ggplot(data = trend_missp, aes(x = month, y = as.numeric(hits), 
+                               color = type, group = type)) +
+  geom_line() + 
+  scale_x_date(date_labels = "%Y-%m") +
+  theme(
+    legend.title = element_blank(),
+    legend.direction = "vertical",
+    legend.position = c(.8,.7),
+    legend.text = element_text(size = 12)
+  ) + 
+  labs(
+    title = 'Comparaison de l\'influence du "misspelling"',
+    x = NULL,
+    y  = "Intérêt relatif",
+    color = NULL
+  ) 
+```
 
 Concernant les données Twitter désormais, l'analyse est compliquée car il faut "nettoyer le texte". Les tweets sont composés de hashtags (#), mentions (@) textes, liens et émoticônes, ce qui les rend particulièrement compliqués à exploiter. De plus, en français, il y a de nombreux accents par rapport à l'anglais, ce qui peut soulever de nouveaux problèmes. Selon l'information que l'on veut extraire du tweets, les étapes de nettoyage (comme retirer la ponctuation) peuvent changer. Il faut donc être particulièrement vigilant. 
 

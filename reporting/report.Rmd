@@ -23,7 +23,7 @@ L'application a été développée pour permettre une exploration de la qualité
 
 L'idée étant de proposer en première page (figure ci-après) un aperçu de la qualité de l'air (carte et mesure) et une figure montrant les sources de pollution principale pour la commune choisie qui donne ensuite envie à l'utilisateur d'en explorer les détails. La découverte des sources de pollution mais aussi des épisodes de pollution en France et dans le département font l'objet de pages à part entière composées de graphiques interactifs qui permettent par exemple de changer la zone étudiée, faire varier les années... De plus un onglet porte sur une étude de tendance des recherches de qualité de l'air en France et sur une collecte d'un mois de tweets relatifs à la pollution atmosphérique et au changement climatique afin d'estimer l'intérêt des gens pour la qualité de l'air. Enfin une dernière page explique le pourquoi de l'application, détaille les données utilisées et leur provenance, donne des éléments de réponse sur la qualité de l'air mais surtout oriente l'utilisateur vers des sources d'informations (ministère, Prev'Air, AASQA...).
 
-![](../figs/page_daccueil.png){ width=100% }
+![](page_daccueil.png){ width=100% }
 
 ## Traitement de données
 

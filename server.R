@@ -158,7 +158,6 @@ server <- function(input, output, session) {
       addEasyButton(
         easyButton(
           id = "geoloc", icon  = "fa-crosshairs", title = "Locate Me",
-          #onClick = JS("function(btn, map){ map.locate({setView: true, enableHighAccuracy: true }); }"),
           onClick = JS("function(btn, map){ 
                           map.locate({setView: true, enableHighAccuracy: true }); 
                           Shiny.onInputChange('geo_action', 'clicked');
