@@ -1,0 +1,9 @@
+# readme scripts
+- eea_api.R: request aq monitoring stations (~2d of historic)
+
+- corresp_*: script to ensure the regions & depto names and code for episodes
+& emissions
+
+- ins_*: treat emissions files from INS, clean & aggregate
+
+- lcsqa_episodes: clean & tidy episodes files

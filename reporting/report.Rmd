@@ -1,0 +1,48 @@
+---
+title: "La qualité de l'air près de chez soi"
+author: "Vincent Lemaire"
+date: "31 décembre 2018"
+output: pdf_document
+urlcolor: blue
+---
+
+## Introduction
+
+Cette application, **la qualité de l'air près de chez soi**, a été créée dans le but de permettre à l'utilisateur de **s'informer sur la qualité de l'air près de chez lui et d'explorer les sources de pollution de sa commune.** Elle se base sur de nombreuses sources de données (Prev'Air, LCSA, INS...) et une interface simple et interactive. Pour voir une présentation interactive de l'application, veuillez suivre ce [lien](https://drive.google.com/open?id=1b7IRsnLc-p-_0ob0SHqSIwnmDzdkk5MJ). 
+
+## Démarche
+
+Comme évoqué dans l'introduction, l'application est un outil permettant d'explorer de nombreuses données relatives à la qualité de l'air :
+
+- Estimation des concentrations de polluants atmosphériques par Prev'Air 
+- Mesures des concentrations de polluants atmopshériques par les AASQA
+- Liste des épisodes de pollution par le LCSQA
+- Emissions de polluants par secteur par l'INS
+
+L'application a été développée pour permettre une exploration de la qualité de l'air au niveau de la commune mais surtout pour permettre aux utilisateurs d'étudier les sources locales de pollution et, peut-être, donner l'envie à certains utilisateurs de modifier leurs habitudes lorsqu'ils découvriront par exemple que le trafic est un secteur d'émissions majeur dans leur commune. 
+
+L'idée étant de proposer en première page (figure ci-après) un aperçu de la qualité de l'air (carte et mesure) et une figure montrant les sources de pollution principale pour la commune choisie qui donne ensuite envie à l'utilisateur d'en explorer les détails. La découverte des sources de pollution mais aussi des épisodes de pollution en France et dans le département font l'objet de pages à part entière composées de graphiques interactifs qui permettent par exemple de changer la zone étudiée, faire varier les années... De plus un onglet porte sur une étude de tendance des recherches de qualité de l'air en France et sur une collecte d'un mois de tweets relatifs à la pollution atmosphérique et au changement climatique afin d'estimer l'intérêt des gens pour la qualité de l'air. Enfin une dernière page explique le pourquoi de l'application, détaille les données utilisées et leur provenance, donne des éléments de réponse sur la qualité de l'air mais surtout oriente l'utilisateur vers des sources d'informations (ministère, Prev'Air, AASQA...).
+
+![](../figs/page_daccueil.png){ width=100% }
+
+## Traitement de données
+
+L'ensemble des traitements de données ainsi que la conception de l'application ont été réalisés à l'aide du logiciel [R](https://www.r-project.org/). De nombreux packages ont été utilisés tant pour la collecte et le traitement de données que pour la création de l'application elle-même. Vous trouverez les scripts [ici](https://drive.google.com/open?id=1MRQfUZgjbcaSActGvftY85nFLXqK9fGT).
+
+Les différentes sources de données exploitées dans l'application ont déjà été évoquées (Prev'Air, AASQA, LCSQA, INS). Les données ont été collectées sur les sites respectifs des institutions ou sur [DataGouv](https://www.data.gouv.fr/fr/). Seules les concentrations mesurées ont été collectées par le biais de l' *Environmental European Agency* afin de pouvoir facilement étendre le domaine à l'Europe. 
+
+De nombreuses opérations de traitement de données ont été réalisées avec notamment un travail de fond important sur le fichier historique des épisodes de pollution du LCSQA qui contient des colonnes avec plusieurs élements dedans. Un autre travail fastidieux a été de pouvoir faire correspondre l'ensemble des données "d'un point de vue géographique" avec notamment les correspondances anciennes, nouvelles régions, les noms de département et régions qui n'étaient pas forcément écrits de la même façon et qui pouvaient être sans code (donc plus difficile à faire correspondre). En plus de ces différents traitements, les données de l'inventaire national spatialisé ont été aggrégées à diverses échelles et les fractions de particules ont été calculées afin d'obtenir par exemple la fraction de PM2.5, de PM10 - PM2.5 et de TSP - PM10. 
+
+Enfin, tout au long du développement de l'application, un soin particulier a été apporté à la vitesse d'exécution afin que l'utilisateur ne soit pas découragé par la lenteur d'affichage des graphiques et des calculs engendrés par ses actions.
+
+## Limite et perspectives
+
+La principale limite de cette application est qu'elle s'applique uniquement à la France métropolitaine. Cela a été fait dans un but de cohérence puisque les simulations de prévision de qualité de l'air sont uniquement réalisées sur la métropole contrairement aux données mesurées, émissions spatialisées et aux recensements des épisodes de pollution. De plus, l'application a été développée sur un jeu de données téléchargés préalablement. Pour la mise en production, il convient donc de paramétrer les requêtes de données tous les jours afin d'alimenter en continu l'application. Les scripts de requête de données pourront tout à fait être adaptés et c'est d'ailleurs l'objet des développements prévus pour la prochaine phase. 
+
+D'autres perspectives sont envisagées pour mieux guider l'utilisateur avec notamment l'ajout des valeurs annuelles  de pollution afin de faciliter la comparaison avec la valeur du jour et d'aider l'utilisateur à donner du sens aux données qu'il observe. De plus l'intégration de l'indice ATMO et de l'indice Européen de la qualité de l'air sont aussi envisagés. Par ailleurs, une extension à l'Europe, en récupérant les données sur le site de [Copernicus Atmospheric Monitoring Service](https://atmosphere.copernicus.eu/), serait un plus. Enfin intégrer d'autres espèces de l'INS et un degré plus fin sur les sources (SNAP2 et 3) seraient pourrient constituer une amélioration, à condition de ne pas nuire à la simplicité de l'application et à sa vitesse d'exécution. 
+
+De façon générale, un travail sur le design, sur des aides pour l'utilisateur et l'ajout de nouveaux graphiques peuvent améliorer le prototype de l'application. 
+
+## Conclusion
+
+Cette application permet de découvrir la qualité de l'air près de chez soi et d'explorer les principales sources de pollution de façon ludique. Sa qualité majeure réside dans le fait qu'elle est simple d'utilisation et exploite de nombreuses sources de données les rendant par-là même accessibles à de nombreux utlisateurs. 

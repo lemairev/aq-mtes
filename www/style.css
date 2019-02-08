@@ -1,0 +1,15 @@
+#mult_tri {
+  display: inline-block;
+  vertical-align: top;
+  margin-left= 0.5%;
+  width: 32%;
+}
+
+#mult_dbl {
+  display: inline-block;
+  vertical-align: top;
+  margin-left= 0.5%;
+  width: 48%;
+}
+
+

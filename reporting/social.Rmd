@@ -1,0 +1,102 @@
+---
+title: "Préoccupation des français à travers Twitter et Google Trends"
+author: "Vincent Lemaire"
+date: "31 décembre 2018"
+output: html_fragment
+---
+
+## Introduction
+
+Les tendances de Google Trends et d'un mois de tweets relatifs à la qualité de l'air et au changement climatique sont analysés afin de donner une idée de l'intérêt que les gens portent sur le sujet à travers ces deux vecteurs d'information. 
+
+Tout d'abord, les tendances de recherche de la qualité de l'air sont présentées depuis les débuts de Google Trends (2004) à nos jours. Ensuite, on essaye de relier épisodes de pollution et pics de recherche. Pour faire le lien avec Twitter, on présente les mots-clefs les plus utilisés pour chercher des informations sur la pollution atmosphérique sur Google. Cela donne de bons indices concernant les *hashtags* à collecter sur Twitter. Puis on compare les fréquences de recherche et les nombres de tweets collectés entre qualité de l'air et changement climatique. Enfin, on analyse les tweets en étudiant les mots les plus fréquents, les utilisateurs, les hashtags ainsi que les mentions de personne. Enfin on présente les limites de l'étude et quelques perspectives.
+
+## La qualité de l'air en fréquence de recherche
+
+### Quels mots clefs pour rechercher la qualité de l'air?
+
+La figure suivante présente les tendances de recherche depuis 2004 à nos jours sur Google Trends. Plusieurs mots-clefs en rapport avec la qualité de l'air ont été évalués afin d'identifier les mots les plus utilisés. La figure montre que le terme pollution atmosphérique est relativement plus cherché que le terme qualité de l'air. Les autres sont en comparaison très peu recherchés. 
+
+![](../figs/keywords.png){ width=40% }
+
+Fort de cette information, pour la suite de l'étude, on utilise donc les mots clefs : pollution atmosphérique, qualité de l'air et pollution de l'air afin d'évaluer les tendances de recherche. De plus lors de la collecte de données sur Twitter, on s'est focalisé sur des hashtags en rapport avec ces termes. 
+
+### Tendance générale
+
+La figure ci-après présente les tendances de recherche depuis 2004 (lancement de Google Trends) à nos jours. Les données représentent un pourcentage de recherche par rapport au maximum sur la période (ici en 2004). La recherche porte sur la combinaison de mots: "pollution atmosphérique ou pollution de l'air ou qualité de l'air", afin de bien couvrir le spectre des recherches. 
+
+![](../figs/trends.png){ width=40% }
+
+On observe une tendance relative à la baisse par rapport à 2004 et un cycle saisonnier dans les recherches avec des pics en hiver notamment. Est-ce que ces pics de recherche sont liés à des pics de pollution? 
+
+### Episode et recherches
+
+Dans cette section, on met en relation la base de données des épisodes de pollution du LCSQA avec les fréquences de recherche. La base de données commence en avril 2015 donc la recherche de tendance s'étend désormais de cette date à nos jours. La fréquence de recherche relative est une valeur mensuelle. Sur la figure, on remarque encore le cycle saisonnier identifié précédemment (courbe noire). Les traits verticaux représentent les dépassements de seuils en France métropolitaine:
+
+- le vert représente l'ozone (polluant photochimique secondaire avec des pics de pollution en été), 
+- le bleu représente les particules (PM10) avec des épisodes de pollution généralement en hiver et au printemps.
+
+On remarque globalement des hausses de recherche lors des pics de pollution, notamment en fin d'année 2016 et début 2017, lors d'épisodes de pollution aux particules. Faire une analyse de la série temporelle en la décomposant pour extraire le signal saisonnier et la tendance pourrait apporter des informations supplémentaires. Enfin, étudier la corrélation entre fréquence de recherche et occurrence d'épisodes de pollution mathématiquement et non plus visuellement permettrait une meilleure évaluation. 
+
+![](../figs/episodes.png){ width=40% }
+
+
+## Twitter : un mois de collecte
+
+Dans cette étude, on s'appuie sur les tendances de recherche Google afin de collecter des tweets durant un mois (11 novembre jusqu'au 11 décembre). Ils sont collectés toutes les 12h en cherchant les mots-clefs relatifs à la qualité de l'air (identifiés grâce à Google Trends). Une fois collectés, l'idée est d'analyser les tweets (en français) obtenus et, in fine, de comparer la collecte relative à la qualité de l'air avec celle relative au changement climatique afin de les mettre en perspective.
+
+### Changement climatique et qualité de l'air 
+
+La figure suivante présente les tendances de recherche relative entre qualité de l'air et changement climatique. 
+
+![](../figs/trends_aqcc.png){ width=40% }
+
+Globalement on s'aperçoit que le changement climatique est plus recherché sur Google que la qualité de l'air. Observe-t-on les mêmes tendances dans les tweets collectés? La réponse est oui, pour un mois de collecte de tweets en français, 6068 tweets relatifs au changement climatique ont été collectés contre seulement 572 pour la qualité de l'air. Afin de connaître la position exacte des utilisateurs (coordonnées GPS) et d'identifier s'ils résident en France, il faut une API Google Maps. Ne disposant pas de cet accès, on a retravaillé les informations relatives aux différents tweets (description des utilisateurs, location...) et identifiés 3777 utilisateurs qui résident en France, 1471 dans d'autres endroits (Belgique, Sénégal...) et 1392 sont non identifiés. Pour le reste de l'analyse, l'ensemble du corpus de tweets est considéré mais la même analyse pourrait être réalisée en ne gardant uniquement les "tweets français".
+
+### Analyse des tweets
+
+La première analyse s'est portée sur les hashtags (#mots-clefs). Les hashtags permettent dans twitter de se référer à une thématique et sont donc très importants. Le graphique (a) présente les hashtags les plus populaires lors de la collecte. On s'aperçoit que la majorité des tweets concernent le changement climatique et que les termes qui reviennent le plus sont #changementclimatique pour le changement climatique et #qualitedelair pour la pollution atmosphérique avec respectivement environ 2500 et 400 occurrences. 
+
+![](../figs/hashtags.png){ width=40% }
+
+Le graphique (b) quant à lui propose d'étudier les hashtags présents dans le corps du texte des tweets collectés. On retrouve les mêmes hashtags importants cependant on note l'apparition d'autres hashtags qui sont le reflet de l'actualité comme: #giletjaunes ou encore #cop24. Une fois encore, on remarque la prépondérance des hashtags concernant le changement climatique.
+
+Dans un second temps, on s'est intéressé aux utilisateurs les plus actifs sur twitter pendant ce mois. La figure ci-après présente les noms des utilisateurs les plus actifs par sujet: rouge pour le changement climatique et bleu pour la qualité de l'air. On retrouve par exemple CCNUCC qui est le compte officiel de l'ONU Changements climatiques ou encore Sentinellesdsc qui est un programme scientifique et éducatif sur les effets du changement climatique et sur la biodiversité. Concernant la qualité de l'air, monair_info est un compte visant à informer les gens sur la qualité de l'air ambiante. 
+
+![](../figs/top_user.png){ width=60% }
+
+Ensuite on s'est intéressé aux mentions les plus fréquentes parmi les tweets. Autre arme redoutable de Twitter, les mentions permettent d'interpeler, citer quelqu'un sur Twitter. La figure ci-après classe les comptes en fonction du nombre de mentions. On retrouve des noms bien connus comme Le Monde, le président français (et américain), la COP24 et bien d'autres organismes de presse, d'ONG ou de recherches (France Info, WWF, le CNRS...). Il serait intéressant d'étudier les liens entre ces mentions et les utilisateurs par exemple. 
+
+![](../figs/mentions.png){ width=40% }
+
+Enfin, une petite analyse des mots les plus fréquents est réalisée. Cette analyse simple regarde juste l'occurrence des mots parmi les tweets. Inévitablement, on retrouve les hashtags et les mentions parmi les mots les plus fréquents. On pourrait donc les retirer pour se concentrer uniquement sur les autres mots présents. 
+
+![](../figs/words.png){ width=40% }
+
+Afin de compléter cette analyse, on pourrait regarder les mots composés, réaliser une analyse de sentiments pour connaître la préoccupation (colère, action...) des gens à travers le tweet... 
+
+## Limites et perspectives
+
+Cette étude ne fait qu'effleurer la surface des possibilités notamment avec les données de Twitter, en effet, le *text mining* est une discipline à part entière. Dans cette partie, on va discuter des limites de l'étude et donner quelques perspectives.
+
+### Limites
+
+Concernant Google Trends, la façon dont on écrit les mots-clefs influence fortement les recherches. Cela est bien documenté [ici](https://support.google.com/trends/answer/4359582?hl=fr). Prenons l'exemple de la pollution atmosphérique, c'est un bigramme (mot composé). Il convient donc si on veut chercher exactement ce terme d'ajouter des guillemets. Autrement, Google Trends peut dissocier les termes de recherche tel que : "pollution et/ou atmosphérique". La figure suivante évalue justement l'utilisation des guillemets sur la recherche de tendance. On s'aperçoit alors que les requêtes sont sensiblement pareilles que l'on considère ou non, les guillemets ce qui laisse à penser que leur utilisation ici n'est pas indispensable. 
+
+![](../figs/quote.png){ width=40% }
+
+
+Un autre élément important auquel il faut prêter attention est le *misspelling* autrement dit lorque l'on orthographie mal un mot lors d'une recherche Google. Afin de chercher l'ensemble des recherches qualité de l'air par exemple, il faudrait donc considérer l'ensemble des mots-clefs (pollution atmosphérique...) et écrire l'ensemble de ces mots de différentes façons. Des générateurs de *misspelling* existent afin de réaliser automatiquement ce travail. En guise d'exemple, la figure présente le mot pollution atmosphérique orthographié de 4 façons avec des oublis de lettre et d'accent. Globalement on s'aperçoit que le terme bien orthographié est celui qui est le plus recherché. Le deuxième et seul autre terme avec une fréquence importante est "pollution atmospherique" (sans accent). Pour améliorer les tendances de recherche précédentes, nous aurions dû dupliquer l'écriture des mots avec et sans accents. L'influence semble cependant assez faible.
+
+![](../figs/misspelling.png){ width=40% }
+
+Concernant les données Twitter désormais, l'analyse est compliquée car il faut "nettoyer le texte". Les tweets sont composés de hashtags (#), mentions (@) textes, liens et émoticônes, ce qui les rend particulièrement compliqués à exploiter. De plus, en français, il y a de nombreux accents par rapport à l'anglais, ce qui peut soulever de nouveaux problèmes. Selon l'information que l'on veut extraire du tweets, les étapes de nettoyage (comme retirer la ponctuation) peuvent changer. Il faut donc être particulièrement vigilant. 
+
+### Perspectives
+
+Pour améliorer cette étude, comme cela a déjà été évoqué, il serait intéressant d'élargir la liste de mots-clefs pour les recherches sur Google Trends afin de mieux couvrir l'ensemble des requêtes. D'autres mots-clefs pourraient d'ailleurs être ajoutés (par exemple vignette Crit'Air ou indice de qualité de l'air). Il serait aussi intéressant de regarder les recherches sur les sites proposant des données de qualité de l'air et d'analyser leur fréquentation. 
+
+Concernant Twitter, il faudrait une collecte plus longue qu'un seul mois et peut-être considérer les tweets en anglais. De plus, de nombreuses autres informations sont disponibles et exploitables. On pourrait par exemple imaginer analyser les connexions entre les utilisateurs les plus actifs... Enfin, faire une analyse de sentiment sur le texte des tweets afin d'identifier les préoccupations des gens serait pertinente. Il serait également intéressant de créer un indice de préoccupation basé sur le rapport de fréquence de tweets à une moyenne annuelle et de le mettre en parallèle avec d'autres indices de qualité de l'air. 
+
+
+
