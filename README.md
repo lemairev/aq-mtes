@@ -96,11 +96,14 @@ et des packages additionnels.
         [ncdf4](https://cran.r-project.org/web/packages/ncdf4/index.html)):
         concentrations modélisées sous forme de netcdf (Prev’Air)
   - **Application web & reporting**
-      - [shiny](https://shiny.rstudio.com/)
-      - [shinydashboard](https://rstudio.github.io/shinydashboard/)
-      - [shinyWidgets](https://github.com/dreamRs/shinyWidgets)
+      - [shiny](https://shiny.rstudio.com/) &
+        [shinydashboard](https://rstudio.github.io/shinydashboard/) :
+        construction de l’application
+      - [shinyWidgets](https://github.com/dreamRs/shinyWidgets) :
+        certaines fonctions de l’application
       - [leaflet](https://rstudio.github.io/leaflet/) &
-        [leaflet.extras](https://bhaskarvk.github.io/leaflet.extras/)
+        [leaflet.extras](https://bhaskarvk.github.io/leaflet.extras/) :
+        carte interactive des concentrations
       - [rmarkdown](https://rmarkdown.rstudio.com/index.html): rédaction
         de rapport, de la partie préoccupation et à propos dans
         l’application…
@@ -121,7 +124,7 @@ catégorie:
         évidence les principales fonctionnalités?
       - ajout de valeurs annuelles pour aider l’utilisateur à se situer
   - **Ajout de données**
-      - intégrer les DOMTOM dans l’outil (seul les mesures sont
+      - intégrer les DOMTOM dans l’outil (seules les mesures sont
         disponibles)
       - ajouter les prévisions Europe (Copernicus) et régionales (AASQA)
       - intégrer d’autres espèces et plus de sources (SNAP2 et 3) dans
